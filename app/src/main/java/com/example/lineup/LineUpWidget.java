@@ -109,7 +109,7 @@ public class LineUpWidget extends FrameLayout {
             item.setX(itemX);
 //            item.setPlayerIcon();
 //            item.setPlayerName();
-            item.setTag(String.format(Locale.getDefault(), "%d%d", lineNumber, columnNumber));
+            item.setTag(String.format(Locale.getDefault(), "%d-%d", lineNumber, columnNumber));
             item.setOnClickListener(onClickListener);
 
             container.addView(item);
@@ -126,17 +126,20 @@ public class LineUpWidget extends FrameLayout {
         int itemRise = calculateItemRise();
         int indexShift = calculateIndexShift(lineNumber);
         int indexCenter = calculateIndexCenter(lineNumber);
+        int evenNumberCorrection = calculateEvenNumberCorrection(lineNumber);
 
         for (int i = 0; i < indexCenter; i++) {
             int currentIndex = i + 1;
 
             int translationY = itemRise * currentIndex;
 
-            int leftIndex = indexCenter - currentIndex + indexShift;
-            correctItemPosition(leftIndex, translationY);
+            int leftIndex = indexCenter - currentIndex - evenNumberCorrection;
+            if (leftIndex >= 0) {
+                correctItemPosition(leftIndex + indexShift, translationY);
+            }
 
-            int rightIndex = indexCenter + currentIndex + indexShift;
-            correctItemPosition(rightIndex, translationY);
+            int rightIndex = indexCenter + currentIndex;
+            correctItemPosition(rightIndex + indexShift, translationY);
         }
     }
 
@@ -150,7 +153,7 @@ public class LineUpWidget extends FrameLayout {
     }
 
     private int calculateItemRise() {
-        return container.getHeight() / 50; // 2% from container height
+        return container.getHeight() / 100 * 3; // 3% from container height
     }
 
     private int calculateIndexShift(int lineNumber) {
@@ -163,6 +166,10 @@ public class LineUpWidget extends FrameLayout {
 
     private int calculateIndexCenter(int lineNumber) {
         return (int) Math.floor(lineUpList.get(lineNumber).size() / 2);
+    }
+
+    private int calculateEvenNumberCorrection(int lineNumber) {
+        return lineUpList.get(lineNumber).size() % 2 == 0 ? 1 : 0;
     }
 
     private void correctItemPosition(int position, int translationY) {
