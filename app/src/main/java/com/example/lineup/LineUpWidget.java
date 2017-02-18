@@ -45,6 +45,8 @@ public class LineUpWidget extends FrameLayout {
     }
 
     public void setLineUpList(List<List<Integer>> lineUpList) {
+        container.removeAllViews();
+        // calculate size
         showLineUp(lineUpList);
     }
 
@@ -101,9 +103,35 @@ public class LineUpWidget extends FrameLayout {
 
             container.addView(playerWidget);
         }
+
+        correctLine(lineList, lineNumber);
     }
 
-    private void correctLine() {
+    private void correctLine(List<Integer> lineList, int lineNumber) {
+        if (lineNumber != 1) {
+            return;
+        }
 
+        int centerIndex = (int) Math.floor(lineList.size() / 2);
+
+        for (int i = 1; i < centerIndex + 1; i++) {
+            float y = 30 * i;
+
+            int leftIndex = centerIndex - i;
+            View leftView = container.getChildAt(leftIndex + 2);
+            if (leftView != null) {
+                String tag = (String) leftView.getTag();
+//                leftView.setTranslationY(-y);
+                leftView.setY(leftView.getY() - y);
+            }
+
+            int rightIndex = centerIndex + i;
+            View rightView = container.getChildAt(rightIndex + 2);
+            if (rightView != null) {
+                String tag = (String) rightView.getTag();
+//                rightView.setTranslationY(-y);
+                rightView.setY(rightView.getY() - y);
+            }
+        }
     }
 }

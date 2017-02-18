@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onClick: playerPosition = " + playerPosition);
                 Log.d(TAG, "onClick: view.getHeight() = " + view.getHeight());
                 Log.d(TAG, "onClick: view.getWidth() = " + view.getWidth());
+                Toast.makeText(MainActivity.this, playerPosition, Toast.LENGTH_SHORT).show();
             }
         });
     }
