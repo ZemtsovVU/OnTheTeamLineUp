@@ -7,9 +7,12 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import java.util.List;
+import java.util.Locale;
 
 public class LineUpWidget extends FrameLayout {
     private ViewGroup container;
+
+    private OnClickListener onClickListener;
 
     public LineUpWidget(Context context) {
         super(context);
@@ -34,6 +37,11 @@ public class LineUpWidget extends FrameLayout {
     private void init() {
         View view = inflate(getContext(), R.layout.widget_line_up, this);
         container = (FrameLayout) view.findViewById(R.id.container_view_group);
+    }
+
+    @Override
+    public void setOnClickListener(OnClickListener onClickListener) {
+        this.onClickListener = onClickListener;
     }
 
     public void setLineUpList(List<List<Integer>> lineUpList) {
@@ -66,6 +74,9 @@ public class LineUpWidget extends FrameLayout {
 
             PlayerWidget playerWidget = new PlayerWidget(getContext());
             playerWidget.setPlayerNumber(lineList.get(columnNumber));
+
+            playerWidget.setTag(String.format(Locale.getDefault(), "%d%d", lineNumber, columnNumber));
+            playerWidget.setOnClickListener(onClickListener);
 
             float widgetY = y - playerWidget.getHeight() / 2;
             float widgetX = x - playerWidget.getWidth() / 2;
