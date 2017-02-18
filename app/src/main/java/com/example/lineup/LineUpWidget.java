@@ -10,9 +10,13 @@ import java.util.List;
 import java.util.Locale;
 
 public class LineUpWidget extends FrameLayout {
+    private static final int[] LINES_NEED_CORRECTION = {1};
+
     private ViewGroup container;
 
     private OnClickListener onClickListener;
+
+    private List<List<Integer>> lineUpList;
 
     public LineUpWidget(Context context) {
         super(context);
@@ -45,25 +49,27 @@ public class LineUpWidget extends FrameLayout {
     }
 
     public void setLineUpList(List<List<Integer>> lineUpList) {
+        this.lineUpList = lineUpList;
+
         container.removeAllViews();
         // calculate size
-        showLineUp(lineUpList);
+        showLineUp();
     }
 
-    private void showLineUp(List<List<Integer>> lineUpList) {
+    private void showLineUp() {
         int containerHeight = container.getHeight();
         int lineCount = lineUpList.size();
 
         float lineHeight = containerHeight / lineCount;
 
-        float playerSize = calculatePlayerSize(lineUpList);
+        float playerSize = calculatePlayerSize();
 
         for (int i = 0; i < lineCount; i++) {
-            showLine(lineUpList.get(i), i, lineHeight, playerSize);
+            showLine(i, lineHeight, playerSize);
         }
     }
 
-    private float calculatePlayerSize(List<List<Integer>> lineUpList) {
+    private float calculatePlayerSize() {
         int maxColumn = 0;
         for (List<Integer> list : lineUpList) {
             if (list.size() > maxColumn) {
@@ -73,9 +79,9 @@ public class LineUpWidget extends FrameLayout {
         return container.getWidth() / maxColumn;
     }
 
-    private void showLine(List<Integer> lineList, int lineNumber, float lineHeight, float playerSize) {
+    private void showLine(int lineNumber, float lineHeight, float playerSize) {
         int containerWidth = container.getWidth();
-        int columnCount = lineList.size();
+        int columnCount = lineUpList.get(lineNumber).size();
 
         float columnWidth = containerWidth / columnCount;
 
@@ -87,7 +93,7 @@ public class LineUpWidget extends FrameLayout {
             float x = columnWidth * columnNumber + columnCenter;
 
             PlayerWidget playerWidget = new PlayerWidget(getContext());
-            playerWidget.setPlayerNumber(lineList.get(columnNumber));
+            playerWidget.setPlayerNumber(lineUpList.get(lineNumber).get(columnNumber));
 
             ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams((int) playerSize, (int) playerSize);
             playerWidget.setLayoutParams(layoutParams);
@@ -104,34 +110,60 @@ public class LineUpWidget extends FrameLayout {
             container.addView(playerWidget);
         }
 
-        correctLine(lineList, lineNumber);
+        correctLineLayout(lineNumber);
     }
 
-    private void correctLine(List<Integer> lineList, int lineNumber) {
-        if (lineNumber != 1) {
+    private void correctLineLayout(int lineNumber) {
+        if (!needCorrection(lineNumber)) {
             return;
         }
 
-        int centerIndex = (int) Math.floor(lineList.size() / 2);
+        int itemRise = calculateItemRise();
+        int indexShift = calculateIndexShift(lineNumber);
+        int indexCenter = calculateIndexCenter(lineNumber);
 
-        for (int i = 1; i < centerIndex + 1; i++) {
-            float y = 30 * i;
+        for (int i = 0; i < indexCenter; i++) {
+            int currentIndex = i + 1;
 
-            int leftIndex = centerIndex - i;
-            View leftView = container.getChildAt(leftIndex + 2);
-            if (leftView != null) {
-                String tag = (String) leftView.getTag();
-//                leftView.setTranslationY(-y);
-                leftView.setY(leftView.getY() - y);
+            int translationY = itemRise * currentIndex;
+
+            int leftIndex = indexCenter - currentIndex + indexShift;
+            correctItemPosition(leftIndex, translationY);
+
+            int rightIndex = indexCenter + currentIndex + indexShift;
+            correctItemPosition(rightIndex, translationY);
+        }
+    }
+
+    private boolean needCorrection(int lineNumber) {
+        for (Integer lineNeedCorrection : LINES_NEED_CORRECTION) {
+            if (lineNeedCorrection == lineNumber) {
+                return true;
             }
+        }
+        return false;
+    }
 
-            int rightIndex = centerIndex + i;
-            View rightView = container.getChildAt(rightIndex + 2);
-            if (rightView != null) {
-                String tag = (String) rightView.getTag();
-//                rightView.setTranslationY(-y);
-                rightView.setY(rightView.getY() - y);
-            }
+    private int calculateItemRise() {
+        return container.getHeight() / 50; // 2% from container height
+    }
+
+    private int calculateIndexShift(int lineNumber) {
+        int indexShift = 0;
+        for (int i = 0; i < lineNumber; i++) {
+            indexShift += lineUpList.get(i).size();
+        }
+        return indexShift;
+    }
+
+    private int calculateIndexCenter(int lineNumber) {
+        return (int) Math.floor(lineUpList.get(lineNumber).size() / 2);
+    }
+
+    private void correctItemPosition(int position, int translationY) {
+        View child = container.getChildAt(position);
+        if (child != null) {
+            child.setY(child.getY() - translationY);
         }
     }
 }

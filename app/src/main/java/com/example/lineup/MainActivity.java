@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     private List<List<Integer>> getLineUpList() {
         List<Integer> firstLine = getLineList(2);
-        List<Integer> secondLine = getLineList(5);
+        List<Integer> secondLine = getLineList(5); // TODO: 18.02.2017
         List<Integer> thirdLine = getLineList(3);
         List<Integer> fourthLine = getLineList(1);
         return Arrays.asList(firstLine, secondLine, thirdLine, fourthLine);
