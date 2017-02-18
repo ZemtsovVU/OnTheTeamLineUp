@@ -54,12 +54,24 @@ public class LineUpWidget extends FrameLayout {
 
         float lineHeight = containerHeight / lineCount;
 
+        float playerSize = calculatePlayerSize(lineUpList);
+
         for (int i = 0; i < lineCount; i++) {
-            showLine(lineUpList.get(i), i, lineHeight);
+            showLine(lineUpList.get(i), i, lineHeight, playerSize);
         }
     }
 
-    private void showLine(List<Integer> lineList, int lineNumber, float lineHeight) {
+    private float calculatePlayerSize(List<List<Integer>> lineUpList) {
+        int maxColumn = 0;
+        for (List<Integer> list : lineUpList) {
+            if (list.size() > maxColumn) {
+                maxColumn = list.size();
+            }
+        }
+        return container.getWidth() / maxColumn;
+    }
+
+    private void showLine(List<Integer> lineList, int lineNumber, float lineHeight, float playerSize) {
         int containerWidth = container.getWidth();
         int columnCount = lineList.size();
 
@@ -75,16 +87,14 @@ public class LineUpWidget extends FrameLayout {
             PlayerWidget playerWidget = new PlayerWidget(getContext());
             playerWidget.setPlayerNumber(lineList.get(columnNumber));
 
-            ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(200, 200);
+            ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams((int) playerSize, (int) playerSize);
             playerWidget.setLayoutParams(layoutParams);
 
             playerWidget.setTag(String.format(Locale.getDefault(), "%d%d", lineNumber, columnNumber));
             playerWidget.setOnClickListener(onClickListener);
 
-//            float widgetY = y - playerWidget.getHeight() / 2;
-            float widgetY = y - 100;
-//            float widgetX = x - playerWidget.getWidth() / 2;
-            float widgetX = x - 100;
+            float widgetY = y - playerSize / 2;
+            float widgetX = x - playerSize / 2;
 
             playerWidget.setY(widgetY);
             playerWidget.setX(widgetX);
