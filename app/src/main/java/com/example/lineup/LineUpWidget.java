@@ -75,6 +75,9 @@ public class LineUpWidget extends FrameLayout {
             PlayerWidget playerWidget = new PlayerWidget(getContext());
             playerWidget.setPlayerNumber(lineList.get(columnNumber));
 
+            ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(100, 100);
+            playerWidget.setLayoutParams(layoutParams);
+
             playerWidget.setTag(String.format(Locale.getDefault(), "%d%d", lineNumber, columnNumber));
             playerWidget.setOnClickListener(onClickListener);
 
