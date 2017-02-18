@@ -6,13 +6,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class LineUpWidget extends FrameLayout {
+    private static final int[] LINES_NEED_CORRECTION = {1};
+
     private ViewGroup container;
 
     private OnClickListener onClickListener;
+
+    private List<List<Integer>> lineUpList = new ArrayList<>();
+
+    private int lineHeight;
+    private int itemSize;
 
     public LineUpWidget(Context context) {
         super(context);
@@ -45,50 +53,129 @@ public class LineUpWidget extends FrameLayout {
     }
 
     public void setLineUpList(List<List<Integer>> lineUpList) {
-        showLineUp(lineUpList);
+        this.lineUpList.clear();
+        this.lineUpList.addAll(lineUpList);
+        showLineUp();
     }
 
-    private void showLineUp(List<List<Integer>> lineUpList) {
-        int containerHeight = container.getHeight();
+    private void showLineUp() {
+        container.removeAllViews();
+
+        lineHeight = calculateLineHeight();
+        itemSize = calculateItemSize();
+
         int lineCount = lineUpList.size();
-
-        float lineHeight = containerHeight / lineCount;
-
         for (int i = 0; i < lineCount; i++) {
-            showLine(lineUpList.get(i), i, lineHeight);
+            showLine(i);
         }
     }
 
-    private void showLine(List<Integer> lineList, int lineNumber, float lineHeight) {
-        int containerWidth = container.getWidth();
+    private int calculateLineHeight() {
+        int lineCount = lineUpList.size();
+        return container.getHeight() / lineCount;
+    }
+
+    private int calculateItemSize() {
+        int maxColumn = 0;
+        for (List<Integer> list : lineUpList) {
+            if (list.size() > maxColumn) {
+                maxColumn = list.size();
+            }
+        }
+        return container.getWidth() / maxColumn;
+    }
+
+    private void showLine(int lineNumber) {
+        List<Integer> lineList = lineUpList.get(lineNumber);
+
         int columnCount = lineList.size();
+        int columnWidth = container.getWidth() / columnCount;
 
-        float columnWidth = containerWidth / columnCount;
-
-        float lineCenter = lineHeight / 2;
-        float columnCenter = columnWidth / 2;
+        int lineCenter = lineHeight / 2;
+        int columnCenter = columnWidth / 2;
 
         for (int columnNumber = 0; columnNumber < columnCount; columnNumber++) {
-            float y = lineHeight * lineNumber + lineCenter;
-            float x = columnWidth * columnNumber + columnCenter;
+            ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(itemSize, itemSize);
 
-            PlayerWidget playerWidget = new PlayerWidget(getContext());
-            playerWidget.setPlayerNumber(lineList.get(columnNumber));
+            int currentLineCenter = lineHeight * lineNumber + lineCenter;
+            int currentColumnCenter = columnWidth * columnNumber + columnCenter;
 
-            playerWidget.setTag(String.format(Locale.getDefault(), "%d%d", lineNumber, columnNumber));
-            playerWidget.setOnClickListener(onClickListener);
+            int itemY = currentLineCenter - layoutParams.height / 2;
+            int itemX = currentColumnCenter - layoutParams.width / 2;
 
-            float widgetY = y - playerWidget.getHeight() / 2;
-            float widgetX = x - playerWidget.getWidth() / 2;
+            PlayerWidget item = new PlayerWidget(getContext());
+            item.setLayoutParams(layoutParams);
+            item.setY(itemY);
+            item.setX(itemX);
+//            item.setPlayerIcon();
+//            item.setPlayerName();
+            item.setTag(String.format(Locale.getDefault(), "%d-%d", lineNumber, columnNumber));
+            item.setOnClickListener(onClickListener);
 
-            playerWidget.setY(widgetY);
-            playerWidget.setX(widgetX);
+            container.addView(item);
+        }
 
-            container.addView(playerWidget);
+        correctLineLayout(lineNumber);
+    }
+
+    private void correctLineLayout(int lineNumber) {
+        if (!needCorrection(lineNumber)) {
+            return;
+        }
+
+        int itemRise = calculateItemRise();
+        int indexShift = calculateIndexShift(lineNumber);
+        int indexCenter = calculateIndexCenter(lineNumber);
+        int evenNumberCorrection = calculateEvenNumberCorrection(lineNumber);
+
+        for (int i = 0; i < indexCenter; i++) {
+            int currentIndex = i + 1;
+
+            int translationY = itemRise * currentIndex;
+
+            int leftIndex = indexCenter - currentIndex - evenNumberCorrection;
+            if (leftIndex >= 0) {
+                correctItemPosition(leftIndex + indexShift, translationY);
+            }
+
+            int rightIndex = indexCenter + currentIndex;
+            correctItemPosition(rightIndex + indexShift, translationY);
         }
     }
 
-    private void correctLine() {
+    private boolean needCorrection(int lineNumber) {
+        for (Integer lineNeedCorrection : LINES_NEED_CORRECTION) {
+            if (lineNeedCorrection == lineNumber) {
+                return true;
+            }
+        }
+        return false;
+    }
 
+    private int calculateItemRise() {
+        return container.getHeight() / 100 * 3; // 3% from container height
+    }
+
+    private int calculateIndexShift(int lineNumber) {
+        int indexShift = 0;
+        for (int i = 0; i < lineNumber; i++) {
+            indexShift += lineUpList.get(i).size();
+        }
+        return indexShift;
+    }
+
+    private int calculateIndexCenter(int lineNumber) {
+        return (int) Math.floor(lineUpList.get(lineNumber).size() / 2);
+    }
+
+    private int calculateEvenNumberCorrection(int lineNumber) {
+        return lineUpList.get(lineNumber).size() % 2 == 0 ? 1 : 0;
+    }
+
+    private void correctItemPosition(int position, int translationY) {
+        View child = container.getChildAt(position);
+        if (child != null) {
+            child.setY(child.getY() - translationY);
+        }
     }
 }
