@@ -4,10 +4,9 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 public class PlayerWidget extends FrameLayout {
-    private TextView playerNumberTextView;
+//    private TextView playerNumberTextView;
 
     public PlayerWidget(Context context) {
         super(context);
@@ -31,10 +30,10 @@ public class PlayerWidget extends FrameLayout {
 
     private void init() {
         View view = inflate(getContext(), R.layout.widget_player, this);
-        playerNumberTextView = (TextView) view.findViewById(R.id.player_number_text_view);
+//        playerNumberTextView = (TextView) view.findViewById(R.id.player_number_text_view);
     }
 
     public void setPlayerNumber(int number) {
-        playerNumberTextView.setText(String.valueOf(number));
+//        playerNumberTextView.setText(String.valueOf(number));
     }
 }
