@@ -76,13 +76,13 @@ public class LineUpWidget extends FrameLayout {
     }
 
     private int calculateItemSize() {
-        int maxColumn = 0;
+        int maxItems = lineUpList.size();
         for (List<Integer> list : lineUpList) {
-            if (list.size() > maxColumn) {
-                maxColumn = list.size();
+            if (list.size() > maxItems) {
+                maxItems = list.size();
             }
         }
-        return container.getWidth() / maxColumn;
+        return container.getWidth() / maxItems;
     }
 
     private void showLine(int lineNumber) {
