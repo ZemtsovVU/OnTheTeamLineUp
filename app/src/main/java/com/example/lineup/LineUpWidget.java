@@ -17,18 +17,16 @@ public class LineUpWidget extends FrameLayout {
     private static final int FIRST_ANIMATION_WAVE_DELAY_MILLIS = 250;
     private static final int SECOND_ANIMATION_WAVE_DELAY_MILLIS = 500;
 
-    private static final int[] LINES_NEED_CORRECTION = {1};
-
     private ViewGroup container;
 
     private OnClickListener onClickListener;
 
+    private boolean withAnimation;
+    private List<Integer> linesNeedCorrection = new ArrayList<>();
     private List<List<Integer>> lineUpList = new ArrayList<>();
 
     private int lineHeight;
     private int itemSize;
-
-    private boolean withAnimation;
 
     public LineUpWidget(Context context) {
         super(context);
@@ -62,6 +60,11 @@ public class LineUpWidget extends FrameLayout {
 
     public void setWithAnimation(boolean withAnimation) {
         this.withAnimation = withAnimation;
+    }
+
+    public void setLinesNeedCorrection(List<Integer> linesNeedCorrection) {
+        this.linesNeedCorrection.clear();
+        this.linesNeedCorrection.addAll(linesNeedCorrection);
     }
 
     public void setLineUpList(List<List<Integer>> lineUpList) {
@@ -190,11 +193,16 @@ public class LineUpWidget extends FrameLayout {
     }
 
     private boolean needCorrection(int lineNumber) {
-        for (Integer lineNeedCorrection : LINES_NEED_CORRECTION) {
+        if (linesNeedCorrection == null || linesNeedCorrection.isEmpty()) {
+            return false;
+        }
+
+        for (Integer lineNeedCorrection : linesNeedCorrection) {
             if (lineNeedCorrection == lineNumber) {
                 return true;
             }
         }
+
         return false;
     }
 
