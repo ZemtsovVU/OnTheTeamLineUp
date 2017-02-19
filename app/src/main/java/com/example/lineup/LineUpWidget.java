@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Locale;
 
 public class LineUpWidget extends FrameLayout {
+    private static final int FIRST_ANIMATION_WAVE_TIME_MILLIS = 250;
+    private static final int SECOND_ANIMATION_WAVE_TIME_MILLIS = 500;
+
     private static final int[] LINES_NEED_CORRECTION = {1};
 
     private ViewGroup container;
@@ -139,7 +142,7 @@ public class LineUpWidget extends FrameLayout {
                 );
                 animatorSet.start();
             }
-        }, 250);
+        }, FIRST_ANIMATION_WAVE_TIME_MILLIS);
     }
 
     private void correctLineLayout(int lineNumber) {
@@ -159,11 +162,13 @@ public class LineUpWidget extends FrameLayout {
 
             int leftIndex = indexCenter - currentIndex - evenNumberCorrection;
             if (leftIndex >= 0) {
-                correctItemPosition(leftIndex + indexShift, translationY);
+//                correctItemPosition(leftIndex + indexShift, translationY);
+                correctItemPositionWithAnimation(leftIndex + indexShift, translationY);
             }
 
             int rightIndex = indexCenter + currentIndex;
-            correctItemPosition(rightIndex + indexShift, translationY);
+//            correctItemPosition(rightIndex + indexShift, translationY);
+            correctItemPositionWithAnimation(rightIndex + indexShift, translationY);
         }
     }
 
@@ -201,5 +206,21 @@ public class LineUpWidget extends FrameLayout {
         if (child != null) {
             child.setY(child.getY() - translationY);
         }
+    }
+
+    private void correctItemPositionWithAnimation(int position, final int translationY) {
+        final View child = container.getChildAt(position);
+
+        if (child == null) {
+            return;
+        }
+
+        container.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                int y = (int) child.getY() - translationY;
+                ObjectAnimator.ofFloat(child, "y", y).start();
+            }
+        }, SECOND_ANIMATION_WAVE_TIME_MILLIS);
     }
 }
