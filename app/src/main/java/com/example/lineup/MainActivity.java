@@ -7,8 +7,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -16,6 +14,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Button goButton;
     private LineUpWidget lineUpWidget;
+
+    private boolean firstClick = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +39,14 @@ public class MainActivity extends AppCompatActivity {
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                lineUpWidget.setLineUpList(getLineUpList());
+                List<List<Integer>> lineUpList;
+                if (firstClick) {
+                    lineUpList = LineUpGenerator.generateSimpleLineUp();
+                    firstClick = false;
+                } else {
+                    lineUpList = LineUpGenerator.generateRandomLineUp();
+                }
+                lineUpWidget.setLineUpList(lineUpList);
             }
         });
 
@@ -53,21 +60,5 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, playerPosition, Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private List<List<Integer>> getLineUpList() {
-        List<Integer> firstLine = getLineList(2);
-        List<Integer> secondLine = getLineList(5);
-        List<Integer> thirdLine = getLineList(3);
-        List<Integer> fourthLine = getLineList(1);
-        return Arrays.asList(firstLine, secondLine, thirdLine, fourthLine);
-    }
-
-    private List<Integer> getLineList(int columnCount) {
-        List<Integer> lineList = new ArrayList<>();
-        for (int i = 0; i < columnCount; i++) {
-            lineList.add(i);
-        }
-        return lineList;
     }
 }
