@@ -1,5 +1,7 @@
 package com.example.lineup;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -11,6 +13,10 @@ import java.util.List;
 import java.util.Locale;
 
 public class LineUpWidget extends FrameLayout {
+    private static final int ANIMATION_TIME_MILLIS = 200;
+    private static final int FIRST_ANIMATION_WAVE_DELAY_MILLIS = 250;
+    private static final int SECOND_ANIMATION_WAVE_DELAY_MILLIS = 500;
+
     private static final int[] LINES_NEED_CORRECTION = {1};
 
     private ViewGroup container;
@@ -21,6 +27,8 @@ public class LineUpWidget extends FrameLayout {
 
     private int lineHeight;
     private int itemSize;
+
+    private boolean withAnimation;
 
     public LineUpWidget(Context context) {
         super(context);
@@ -50,6 +58,10 @@ public class LineUpWidget extends FrameLayout {
     @Override
     public void setOnClickListener(OnClickListener onClickListener) {
         this.onClickListener = onClickListener;
+    }
+
+    public void setWithAnimation(boolean withAnimation) {
+        this.withAnimation = withAnimation;
     }
 
     public void setLineUpList(List<List<Integer>> lineUpList) {
@@ -105,17 +117,43 @@ public class LineUpWidget extends FrameLayout {
 
             PlayerWidget item = new PlayerWidget(getContext());
             item.setLayoutParams(layoutParams);
-            item.setY(itemY);
-            item.setX(itemX);
-//            item.setPlayerIcon();
-//            item.setPlayerName();
+//            item.setPlayerIcon(); // TODO: 19.02.2017
+//            item.setPlayerName(); // TODO: 19.02.2017
             item.setTag(String.format(Locale.getDefault(), "%d-%d", lineNumber, columnNumber));
             item.setOnClickListener(onClickListener);
 
-            container.addView(item);
+            if (withAnimation) {
+                showItemWithAnimation(item, itemY, itemX);
+            } else {
+                showItem(item, itemY, itemX);
+            }
         }
 
         correctLineLayout(lineNumber);
+    }
+
+    private void showItem(PlayerWidget item, int y, int x) {
+        item.setY(y);
+        item.setX(x);
+
+        container.addView(item);
+    }
+
+    private void showItemWithAnimation(final PlayerWidget item, final int y, final int x) {
+        container.addView(item);
+
+        container.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                AnimatorSet animatorSet = new AnimatorSet();
+                animatorSet.playTogether(
+                        ObjectAnimator.ofFloat(item, "y", y),
+                        ObjectAnimator.ofFloat(item, "x", x)
+                );
+                animatorSet.setDuration(ANIMATION_TIME_MILLIS);
+                animatorSet.start();
+            }
+        }, FIRST_ANIMATION_WAVE_DELAY_MILLIS);
     }
 
     private void correctLineLayout(int lineNumber) {
@@ -135,11 +173,19 @@ public class LineUpWidget extends FrameLayout {
 
             int leftIndex = indexCenter - currentIndex - evenNumberCorrection;
             if (leftIndex >= 0) {
-                correctItemPosition(leftIndex + indexShift, translationY);
+                if (withAnimation) {
+                    correctItemPositionWithAnimation(leftIndex + indexShift, translationY);
+                } else {
+                    correctItemPosition(leftIndex + indexShift, translationY);
+                }
             }
 
             int rightIndex = indexCenter + currentIndex;
-            correctItemPosition(rightIndex + indexShift, translationY);
+            if (withAnimation) {
+                correctItemPositionWithAnimation(rightIndex + indexShift, translationY);
+            } else {
+                correctItemPosition(rightIndex + indexShift, translationY);
+            }
         }
     }
 
@@ -177,5 +223,21 @@ public class LineUpWidget extends FrameLayout {
         if (child != null) {
             child.setY(child.getY() - translationY);
         }
+    }
+
+    private void correctItemPositionWithAnimation(int position, final int translationY) {
+        final View child = container.getChildAt(position);
+
+        if (child == null) {
+            return;
+        }
+
+        container.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                int y = (int) child.getY() - translationY;
+                ObjectAnimator.ofFloat(child, "y", y).setDuration(ANIMATION_TIME_MILLIS).start();
+            }
+        }, SECOND_ANIMATION_WAVE_DELAY_MILLIS);
     }
 }
