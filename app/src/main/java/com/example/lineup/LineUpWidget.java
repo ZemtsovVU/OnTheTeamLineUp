@@ -13,8 +13,9 @@ import java.util.List;
 import java.util.Locale;
 
 public class LineUpWidget extends FrameLayout {
-    private static final int FIRST_ANIMATION_WAVE_TIME_MILLIS = 250;
-    private static final int SECOND_ANIMATION_WAVE_TIME_MILLIS = 500;
+    private static final int ANIMATION_TIME_MILLIS = 200;
+    private static final int FIRST_ANIMATION_WAVE_DELAY_MILLIS = 250;
+    private static final int SECOND_ANIMATION_WAVE_DELAY_MILLIS = 500;
 
     private static final int[] LINES_NEED_CORRECTION = {1};
 
@@ -149,9 +150,10 @@ public class LineUpWidget extends FrameLayout {
                         ObjectAnimator.ofFloat(item, "y", y),
                         ObjectAnimator.ofFloat(item, "x", x)
                 );
+                animatorSet.setDuration(ANIMATION_TIME_MILLIS);
                 animatorSet.start();
             }
-        }, FIRST_ANIMATION_WAVE_TIME_MILLIS);
+        }, FIRST_ANIMATION_WAVE_DELAY_MILLIS);
     }
 
     private void correctLineLayout(int lineNumber) {
@@ -234,8 +236,8 @@ public class LineUpWidget extends FrameLayout {
             @Override
             public void run() {
                 int y = (int) child.getY() - translationY;
-                ObjectAnimator.ofFloat(child, "y", y).start();
+                ObjectAnimator.ofFloat(child, "y", y).setDuration(ANIMATION_TIME_MILLIS).start();
             }
-        }, SECOND_ANIMATION_WAVE_TIME_MILLIS);
+        }, SECOND_ANIMATION_WAVE_DELAY_MILLIS);
     }
 }
