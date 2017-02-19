@@ -27,6 +27,8 @@ public class LineUpWidget extends FrameLayout {
     private int lineHeight;
     private int itemSize;
 
+    private boolean withAnimation;
+
     public LineUpWidget(Context context) {
         super(context);
         init();
@@ -55,6 +57,10 @@ public class LineUpWidget extends FrameLayout {
     @Override
     public void setOnClickListener(OnClickListener onClickListener) {
         this.onClickListener = onClickListener;
+    }
+
+    public void setWithAnimation(boolean withAnimation) {
+        this.withAnimation = withAnimation;
     }
 
     public void setLineUpList(List<List<Integer>> lineUpList) {
@@ -110,13 +116,16 @@ public class LineUpWidget extends FrameLayout {
 
             PlayerWidget item = new PlayerWidget(getContext());
             item.setLayoutParams(layoutParams);
-//            item.setPlayerIcon();
-//            item.setPlayerName();
+//            item.setPlayerIcon(); // TODO: 19.02.2017
+//            item.setPlayerName(); // TODO: 19.02.2017
             item.setTag(String.format(Locale.getDefault(), "%d-%d", lineNumber, columnNumber));
             item.setOnClickListener(onClickListener);
 
-//            showItem(item ,itemY, itemX);
-            showItemWithAnimation(item ,itemY, itemX);
+            if (withAnimation) {
+                showItemWithAnimation(item, itemY, itemX);
+            } else {
+                showItem(item, itemY, itemX);
+            }
         }
 
         correctLineLayout(lineNumber);
@@ -162,13 +171,19 @@ public class LineUpWidget extends FrameLayout {
 
             int leftIndex = indexCenter - currentIndex - evenNumberCorrection;
             if (leftIndex >= 0) {
-//                correctItemPosition(leftIndex + indexShift, translationY);
-                correctItemPositionWithAnimation(leftIndex + indexShift, translationY);
+                if (withAnimation) {
+                    correctItemPositionWithAnimation(leftIndex + indexShift, translationY);
+                } else {
+                    correctItemPosition(leftIndex + indexShift, translationY);
+                }
             }
 
             int rightIndex = indexCenter + currentIndex;
-//            correctItemPosition(rightIndex + indexShift, translationY);
-            correctItemPositionWithAnimation(rightIndex + indexShift, translationY);
+            if (withAnimation) {
+                correctItemPositionWithAnimation(rightIndex + indexShift, translationY);
+            } else {
+                correctItemPosition(rightIndex + indexShift, translationY);
+            }
         }
     }
 

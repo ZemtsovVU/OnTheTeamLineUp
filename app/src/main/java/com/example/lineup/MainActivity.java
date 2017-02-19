@@ -22,7 +22,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViews();
+        initViews();
+        initListeners();
+    }
 
+    private void findViews() {
+        goButton = (Button) findViewById(R.id.go_button);
+        lineUpWidget = (LineUpWidget) findViewById(R.id.line_up_widget);
+    }
+
+    private void initViews() {
+        lineUpWidget.setWithAnimation(true);
+    }
+
+    private void initListeners() {
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -40,11 +53,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, playerPosition, Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private void findViews() {
-        goButton = (Button) findViewById(R.id.go_button);
-        lineUpWidget = (LineUpWidget) findViewById(R.id.line_up_widget);
     }
 
     private List<List<Integer>> getLineUpList() {
