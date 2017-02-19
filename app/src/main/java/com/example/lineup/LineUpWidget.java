@@ -1,5 +1,7 @@
 package com.example.lineup;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -105,17 +107,39 @@ public class LineUpWidget extends FrameLayout {
 
             PlayerWidget item = new PlayerWidget(getContext());
             item.setLayoutParams(layoutParams);
-            item.setY(itemY);
-            item.setX(itemX);
 //            item.setPlayerIcon();
 //            item.setPlayerName();
             item.setTag(String.format(Locale.getDefault(), "%d-%d", lineNumber, columnNumber));
             item.setOnClickListener(onClickListener);
 
-            container.addView(item);
+//            showItem(item ,itemY, itemX);
+            showItemWithAnimation(item ,itemY, itemX);
         }
 
         correctLineLayout(lineNumber);
+    }
+
+    private void showItem(PlayerWidget item, int y, int x) {
+        item.setY(y);
+        item.setX(x);
+
+        container.addView(item);
+    }
+
+    private void showItemWithAnimation(final PlayerWidget item, final int y, final int x) {
+        container.addView(item);
+
+        container.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                AnimatorSet animatorSet = new AnimatorSet();
+                animatorSet.playTogether(
+                        ObjectAnimator.ofFloat(item, "y", y),
+                        ObjectAnimator.ofFloat(item, "x", x)
+                );
+                animatorSet.start();
+            }
+        }, 250);
     }
 
     private void correctLineLayout(int lineNumber) {
